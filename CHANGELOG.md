@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.0](https://www.github.com/zakodium/react-plot/compare/v0.11.0...v0.12.0) (2022-01-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* reimplement plot rendering with auto-sizing (#203)
+
+### Code Refactoring
+
+* reimplement plot rendering with auto-sizing ([#203](https://www.github.com/zakodium/react-plot/issues/203)) ([ee1483d](https://www.github.com/zakodium/react-plot/commit/ee1483d248e5585a7a48c54c7c31eb8ca50db30a))
+
 ## [0.11.0](https://www.github.com/zakodium/react-plot/compare/v0.10.2...v0.11.0) (2021-11-02)
 
 
