@@ -1,19 +1,19 @@
 import { Meta } from '@storybook/react';
-import { useState } from 'react';
 
 import {
   Axis,
   LineSeries,
   Plot,
-  Annotation,
   Annotations,
   SeriesPoint,
+  useClosestPoint,
+  useTracking,
 } from '../../src';
-import { ClosestInfoResult } from '../../src/components/Tracking';
-import { DEFAULT_PLOT_CONFIG } from '../utils';
+import { DEFAULT_PLOT_CONFIG, PlotControllerDecorator } from '../utils';
 
 export default {
   title: 'API/Tracking',
+  decorators: [PlotControllerDecorator],
 } as Meta;
 
 const data = [
@@ -24,29 +24,16 @@ const data = [
   { x: 5, y: 10 },
 ];
 
-interface Positions {
-  coordinates: Record<string, number>;
-  position: Record<'x' | 'y', number>;
-}
-
 interface TrackingProps {
   data: SeriesPoint[][];
   displayMarker?: boolean;
 }
 function Tracking({ data, displayMarker }: TrackingProps) {
-  const [hover, setHover] = useState<Positions | null>(null);
-  const [closest, setClosest] = useState<ClosestInfoResult | null>(null);
-
+  const closestPoint = useClosestPoint();
+  const tracking = useTracking();
   return (
     <div>
-      <Plot
-        {...DEFAULT_PLOT_CONFIG}
-        onMouseMove={({ coordinates, event: { pageX, pageY } }) => {
-          setHover({ coordinates, position: { x: pageX, y: pageY } });
-        }}
-        onClick={({ getClosest }) => setClosest(getClosest('euclidean'))}
-        onMouseLeave={() => setHover(null)}
-      >
+      <Plot {...DEFAULT_PLOT_CONFIG}>
         {data.map((subdata, i) => (
           <LineSeries
             // eslint-disable-next-line react/no-array-index-key
@@ -60,57 +47,13 @@ function Tracking({ data, displayMarker }: TrackingProps) {
         ))}
         <Axis id="x" position="bottom" label="time [s]" />
         <Axis id="y" position="left" />
-        {closest && (
-          <Annotations>
-            {Object.entries(closest).map(([id, info]) => (
-              <Annotation.Shape
-                key={id}
-                shape="circle"
-                x={info.point.x}
-                y={info.point.y}
-                size={5}
-              />
-            ))}
-          </Annotations>
-        )}
+
+        <Annotations>
+          {closestPoint.annotations}
+          {tracking.annotations}
+        </Annotations>
       </Plot>
-      {hover && (
-        <div
-          style={{
-            position: 'absolute',
-            left: hover.position.x + 5,
-            top: hover.position.y + 5,
-            borderStyle: 'solid',
-            padding: '5px',
-            backgroundColor: 'white',
-          }}
-        >
-          <b>VALUES</b>
-          {Object.keys(hover.coordinates).map((key) => (
-            <div key={key}>
-              {key}: {Math.round(hover.coordinates[key] * 100) / 100}
-            </div>
-          ))}
-        </div>
-      )}
-      {closest && (
-        <div>
-          <b>Closest point</b>
-          {Object.keys(closest).map((key) => (
-            <p key={key}>
-              <b>{closest[key].label}</b>
-              <span>
-                {' x: '}
-                {Math.round((closest[key].point.x || 0) * 100) / 100}
-              </span>
-              <span>
-                {' y: '}
-                {Math.round((closest[key].point.y || 0) * 100) / 100}
-              </span>
-            </p>
-          ))}
-        </div>
-      )}
+      {closestPoint.coordinates}
     </div>
   );
 }
