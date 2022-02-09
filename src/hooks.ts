@@ -102,6 +102,7 @@ export function useDirectedEllipsePosition(
   };
 }
 function convertString(value: string, total: number) {
+  if (value === undefined) return 0;
   return value.trim().endsWith('%')
     ? (Number(value.trim().slice(0, -1)) * total) / 100
     : Number(value);
